@@ -4,6 +4,7 @@ var router = express.Router();
 const md5 = require('blueimp-md5')
 
 const User = require('../models/user');
+const { log } = require('debug');
 
 const filter = { password:0, __v:0 }
 
@@ -16,7 +17,6 @@ router.use((req, res, next) => {
   next();
 });
 
-
 //注册的路由
 register = (req, res) => {
   const { username, password, type } = req.body;
@@ -28,8 +28,7 @@ register = (req, res) => {
       resData.code = 4;
       resData.msg = '用户已存在';
       res.send(resData);
-      console.log(resData);
-      
+      // console.log(resData);
     } else {
       new User({username,password:md5(password),type}).save((err,user) => {
         console.log(user);
@@ -49,9 +48,11 @@ register = (req, res) => {
 //登录
 login = (req,res) => {
   const { username, password } = req.body;
-  User.findOne({username,password:md5(password)},filter)
+  console.log(username,password)
+  console.log('chenchen' + md5(password))
+  User.findOne({username,password:md5(password)})
   .then((user,err) => {
-    // console.log(user,err);
+    console.log(user);
     if(user){
       res.cookie('userId',user._id,{maxAge:1000*3600*24});
       resData.code = 200;
@@ -80,7 +81,6 @@ updateUserInfo = (req,res) => {
   //存在cookies，根据对应的userId更新对应的user文档数据
   //得到提交的用户数据
   const user = req.body; //没有_id
-  console.log(user);
   
   User.findByIdAndUpdate({_id:userId},user,(err,oldUser) =>{
     if(!oldUser){
@@ -92,8 +92,9 @@ updateUserInfo = (req,res) => {
       res.send(resData);
       return;
     }else{
-      const { _id,username,type } = oldUser;
+      const { _id,username,type  } = oldUser;
       const data = Object.assign(user,{ _id,username,type });
+      console.log(data)
       //返回数据
       resData.code = 200;
       resData.msg = '用户信息修改成功';
@@ -113,24 +114,39 @@ getUserInfo = (req,res) => {
     return res.send(resData);
   }
   //根据userid查询对应的user
-  User.findOne({_id:userid},filter)
+  User.findOne({_id:userid})
   .then((user,err) => {
-    console.log(user);
-    
+    // console.log(user);
     resData.code = 200;
     resData.msg = '获取userInfo成功';
     resData.data = user;
     res.send(resData);
   })
-
 }
-
+//修改用户的密码
+getuserpassword = (req,res) => {
+  const  userId = req.cookies.userId;
+  const { newPassword } = req.body;
+  const setPsw = md5(newPassword)
+  console.log('set'+ setPsw+'~')
+  User.findByIdAndUpdate({_id:userId},{$set:{password:setPsw}},(err,result)=>{
+    if(err){
+      resData.code = 0
+      resData.msg = '出错了,修改失败'
+      res.send(resData)
+    }
+    resData.code = 200
+    resData.msg = '密码修改成功'
+    resData.data = md5(newPassword)
+    res.send(resData)
+  })
+}
 //获取用户列表(根据user.type)
 getUserList = (req,res) => {
   const {type} = req.query;
   User.find({type:type},filter)
   .then((users) => {
-    console.log(users);
+    // console.log(users);
     resData.code = 200;
     resData.msg = '获取用户列表成功';
     resData.data = users;
@@ -144,5 +160,6 @@ module.exports = {
   login,
   updateUserInfo,
   getUserInfo,
-  getUserList
+  getUserList,
+  getuserpassword
 }

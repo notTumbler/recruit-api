@@ -19,7 +19,6 @@ module.exports = function(server) {
         //向所有连接的客户端返回消息
         io.emit('receiveMsg',chatMsg);
       });
-     
     })
   })
 }

@@ -23,7 +23,7 @@ getMsgList = (req,res) => {
 
   //查询得到所有的user文档
   User.find((error,userDocs) => {
-    console.log(userDocs,error);
+    // console.log(userDocs,error);
     
     const users = {}
     userDocs.forEach(doc => {

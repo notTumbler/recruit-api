@@ -8,6 +8,7 @@ var router = express.Router();
 // });
 const user = require('../controllers/userController')
 const chats = require('../controllers/chatsController')
+const resume = require('../controllers/resumeController')
 // const User = require('../models/user')
 
 
@@ -15,12 +16,16 @@ const chats = require('../controllers/chatsController')
 router.post('/register',user.register);
 router.post('/login',user.login);
 router.post('/update',user.updateUserInfo);
+router.post('/userpassword',user.getuserpassword)
 router.get('/user',user.getUserInfo);
 router.get('/userlist',user.getUserList);
 
+
+
 router.get('/msglist',chats.getMsgList);
 router.post('/readmsg',chats.readMsg);
-
+router.post('/getresume',resume.getResume)
+router.post('/resume',resume.postResume)
 
 
 

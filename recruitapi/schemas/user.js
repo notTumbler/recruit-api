@@ -8,5 +8,6 @@ module.exports = new mongoose.Schema({
   post:{ type:String, }, //职位
   info:{ type:String, }, //个人或职位简介
   company:{ type:String, }, //公司名称
-  salary:{ type:String, } //工资
+  salary:{ type:String, }, //工资
+  city:{type:String}
 })
